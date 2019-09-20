@@ -1,0 +1,51 @@
+---
+
+- name: Get available kernel versions
+  command: yum list --enablerepo=C7.* --showduplicates kernel
+  changed_when: false
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version == "7"
+  register: yum_kernel_list
+
+- name: Install kernel
+  yum:
+    name: "{{ item.name }}-{{ yum_kernel_list | rhel_kernel(kernel_version) }}"
+    enablerepo: "{{ yum_kernel_list | rhel_repo(kernel_version) }}"
+    allow_downgrade: true
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version == "7"
+    - item.when
+  with_items:
+    - name: kernel
+      when: true
+    - name: kernel-devel
+      when: install_kernel_headers | bool
+    - name: kernel-headers
+      when: install_kernel_headers | bool
+
+- name: Get available kernel versions
+  command: dnf list --enablerepo=* --showduplicates kernel
+  changed_when: false
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version != "7"
+  register: dnf_kernel_list
+
+- name: Install kernel
+  dnf:
+    name: "{{ item.name }}-{{ dnf_kernel_list | rhel_kernel(kernel_version) }}"
+    enablerepo: "{{ dnf_kernel_list | rhel_repo(kernel_version) }}"
+    allow_downgrade: true
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version != "7"
+    - item.when
+  with_items:
+    - name: kernel
+      when: true
+    - name: kernel-devel
+      when: install_kernel_headers | bool
+    - name: kernel-headers
+      when: install_kernel_headers | bool

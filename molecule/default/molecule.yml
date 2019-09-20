@@ -1,0 +1,25 @@
+---
+
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+platforms:
+  - name: centos_7
+    image: centos:7
+  - name: fedora_30
+    image: fedora:30
+provisioner:
+  name: ansible
+  lint:
+    name: ansible-lint
+  inventory:
+    host_vars:
+      centos_7:
+        kernel_version: 3.10.0-693
+verifier:
+  name: testinfra
+  lint:
+    name: flake8

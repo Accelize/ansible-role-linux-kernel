@@ -1,0 +1,6 @@
+---
+# Install kernel headers
+install_kernel_headers: true
+
+# Kernel version to install (Default to latest available)
+kernel_version: ''
