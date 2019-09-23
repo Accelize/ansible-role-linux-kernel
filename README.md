@@ -10,6 +10,8 @@ Requirements
 
 The role requires to be run as root on the target host.
 
+The system requires to be rebooted to apply the kernel change.
+
 The specified Kernel version must be supported by OS repositories (This include "Vault" repositories for Red hat based distributions).
 
 Role Variables
@@ -28,6 +30,16 @@ Example Playbook
      - role: accelize.linux_kernel
   vars:
      kernel_version: 3.10.0-693
+
+  tasks:
+    # Reboot to apply the kernel change
+    - name: Ensure system is rebooted
+      reboot:
+    # If kernel version is required in a following step, update facts to get
+    # the new kernel version
+    - name: Ensure Ansible facts are up to date
+      setup:
+
 ```
 
 Dependencies

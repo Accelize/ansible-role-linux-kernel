@@ -1,14 +1,16 @@
 ---
 
-- name: Get available kernel versions
+- name: Get available kernel versions with YUM
   command: yum list --enablerepo=C7.* --showduplicates kernel
   changed_when: false
+  args:
+    warn: false
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution_major_version == "7"
   register: yum_kernel_list
 
-- name: Install kernel
+- name: Install kernel with YUM
   yum:
     name: "{{ item.name }}-{{ yum_kernel_list | rhel_kernel(kernel_version) }}"
     enablerepo: "{{ yum_kernel_list | rhel_repo(kernel_version) }}"
@@ -25,15 +27,17 @@
     - name: kernel-headers
       when: install_kernel_headers | bool
 
-- name: Get available kernel versions
+- name: Get available kernel versions with DNF
   command: dnf list --enablerepo=* --showduplicates kernel
   changed_when: false
+  args:
+    warn: false
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution_major_version != "7"
   register: dnf_kernel_list
 
-- name: Install kernel
+- name: Install kernel with DNF
   dnf:
     name: "{{ item.name }}-{{ dnf_kernel_list | rhel_kernel(kernel_version) }}"
     enablerepo: "{{ dnf_kernel_list | rhel_repo(kernel_version) }}"
@@ -49,3 +53,45 @@
       when: install_kernel_headers | bool
     - name: kernel-headers
       when: install_kernel_headers | bool
+
+- name: Ensure APT cache is up to date
+  apt:
+    update_cache: true
+  changed_when: false
+  when: ansible_os_family == 'Debian'
+
+- name: Get available kernel versions with APT
+  command: apt-cache showpkg linux-headers-*
+  changed_when: false
+  when:
+    - ansible_os_family == 'Debian'
+  register: apt_kernel_list
+
+- name: Get installed packages with APT
+  command: dpkg -l
+  changed_when: false
+  when:
+    - ansible_os_family == 'Debian'
+  register: apt_packages_list
+
+- name: Install kernel with APT
+  apt:
+    name: "{{ apt_kernel_list | deb_kernel(
+           kernel_version, ansible_distribution, ansible_architecture,
+           item.name) }}"
+  when:
+    - ansible_os_family == 'Debian'
+    - item.when
+  with_items:
+    - name: linux-image
+      when: true
+    - name: linux-headers
+      when: install_kernel_headers | bool
+
+- name: Remove previous kernels with APT
+  apt:
+    name: "{{ apt_packages_list | deb_installed_kernel(
+           apt_kernel_list, kernel_version) }}"
+    state: absent
+    purge: true
+  when: ansible_os_family == 'Debian'

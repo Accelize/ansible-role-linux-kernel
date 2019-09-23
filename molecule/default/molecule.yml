@@ -11,6 +11,10 @@ platforms:
     image: centos:7
   - name: fedora_30
     image: fedora:30
+  - name: debian_buster
+    image: debian:buster
+  - name: ubuntu_bionic
+    image: ubuntu:bionic
 provisioner:
   name: ansible
   lint:
@@ -19,6 +23,8 @@ provisioner:
     host_vars:
       centos_7:
         kernel_version: 3.10.0-693
+      ubuntu_bionic:
+        kernel_version: 4.15.0
 verifier:
   name: testinfra
   lint:
