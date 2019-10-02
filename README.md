@@ -3,7 +3,7 @@
 Linux Kernel Role
 =================
 
-This Ansible role install ans enable a specific kernel version from OS repositories.
+This Ansible role install and enable a specific kernel version from OS repositories.
 
 Requirements
 ------------

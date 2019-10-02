@@ -9,6 +9,8 @@ lint:
 platforms:
   - name: centos_7
     image: centos:7
+  - name: centos_8
+    image: centos:8
   - name: fedora_30
     image: fedora:30
   - name: debian_buster
