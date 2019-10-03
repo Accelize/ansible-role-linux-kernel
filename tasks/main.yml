@@ -1,5 +1,13 @@
 ---
 
+- name: Ensure CentOS Vault repositories list is up to date
+  package:
+    name: centos-release
+    state: latest  # noqa 403
+  retries: 10
+  delay: 1
+  when: ansible_distribution == 'CentOS'
+
 - name: Get available kernel versions with YUM
   command: yum list --enablerepo=C7.* --showduplicates kernel
   changed_when: false
