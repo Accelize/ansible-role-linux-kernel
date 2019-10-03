@@ -3,3 +3,5 @@
   hosts: all
   roles:
     - role: ansible-role-linux-kernel
+  vars:
+    reboot_on_kernel_update: false

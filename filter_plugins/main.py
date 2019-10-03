@@ -59,7 +59,7 @@ def rhel_repo(packages, kernel_version):
     return _rhel_kernel_info(packages, kernel_version)['repo']
 
 
-def _deb_kernel_info(packages, kernel_version):
+def deb_kernel(packages, kernel_version):
     """
     Return best matching kernel version.
 
@@ -133,7 +133,7 @@ def _deb_kernel_package(kernel, dist, arch, name):
     return '-'.join((name, kernel, suffix))
 
 
-def deb_kernel(packages, kernel_version, dist, arch, name):
+def deb_kernel_pkg(packages, kernel_version, dist, arch, name):
     """
     Return kernel package to install.
 
@@ -148,7 +148,7 @@ def deb_kernel(packages, kernel_version, dist, arch, name):
        str: kernel package to install.
     """
     return _deb_kernel_package(
-        _deb_kernel_info(packages, kernel_version), dist, arch, name)
+        deb_kernel(packages, kernel_version), dist, arch, name)
 
 
 def deb_installed_kernel(installed, packages, kernel_version):
@@ -164,7 +164,7 @@ def deb_installed_kernel(installed, packages, kernel_version):
        list of str: Kernel packages to remove.
     """
     # Filter installed package to keep
-    to_keep = _deb_kernel_info(packages, kernel_version)
+    to_keep = deb_kernel(packages, kernel_version)
 
     # Return installed package to remove
     to_remove = []
@@ -182,6 +182,20 @@ def deb_installed_kernel(installed, packages, kernel_version):
     return to_remove
 
 
+def kernel_match(kernel, kernel_spec):
+    """
+    Check if kernel version match.
+
+    Args:
+        kernel (str): Kernel
+        kernel_spec (str): Kernel to match.
+
+    Returns:
+        bool: True if Kernel match.
+    """
+    return kernel.startswith(kernel_spec)
+
+
 class FilterModule(object):
     """Return filter plugin"""
 
@@ -191,4 +205,6 @@ class FilterModule(object):
         return {'rhel_kernel': rhel_kernel,
                 'rhel_repo': rhel_repo,
                 'deb_kernel': deb_kernel,
-                'deb_installed_kernel': deb_installed_kernel}
+                'deb_kernel_pkg': deb_kernel_pkg,
+                'deb_installed_kernel': deb_installed_kernel,
+                'kernel_match': kernel_match}
