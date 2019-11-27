@@ -27,7 +27,7 @@ provisioner:
       centos_8:
         kernel_version: 4.18.0
       ubuntu_bionic:
-        kernel_version: 4.15.0
+        kernel_version: 4.15.0-55
       debian_buster:
         kernel_version: 4.19.0
 verifier:
