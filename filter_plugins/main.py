@@ -17,7 +17,7 @@ def _rhel_kernel_info(packages, kernel_version, current_version):
 
     # If current version match with required version, use this version
     if current_version.startswith(kernel_version):
-        kernel_version = current_version
+        kernel_version = current_version.rsplit('.', 1)[0]
 
     # List all available kernel version and associated repository
     for line in packages['stdout'].splitlines():
