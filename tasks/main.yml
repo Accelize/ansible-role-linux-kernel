@@ -139,4 +139,9 @@
   when:
     - reboot_on_kernel_update | bool
     - (not (ansible_kernel | kernel_match(_kernel)) or reboot_flag.stat.exists)
-  notify: 'Update facts'
+
+- name: Update facts
+  setup:
+  when:
+    - reboot_on_kernel_update | bool
+    - (not (ansible_kernel | kernel_match(_kernel)) or reboot_flag.stat.exists)
