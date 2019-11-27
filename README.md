@@ -3,7 +3,7 @@
 Linux Kernel Role
 =================
 
-This Ansible role install and enable a specific kernel version from OS repositories.
+This Ansible role install and enable a specific kernel version from OS repositories and to ensure matching kernel headers are installed.
 
 Requirements
 ------------
@@ -15,9 +15,12 @@ The specified Kernel version must be supported by OS repositories (This include 
 Role Variables
 --------------
 
-* **install_kernel_headers**: If True, also install matching kernel headers. Default to `true`.
-* **kernel_version**: Install the most recent kernel version available that start by this value. Default to `''`.
-* **reboot_on_kernel_update**: If True, reboot the system if the kernel was updated. Default to `true`.
+* **install_kernel_headers**: If True, also install matching kernel headers.
+  Default to `true`.
+* **kernel_version**: Install the most recent kernel version available that start by this value (Keep the current kernel version if matching).
+  Default to any version.
+* **reboot_on_kernel_update**: If True, reboot the system if the kernel was updated.
+  Default to `true`.
 
 Example Playbook
 ----------------

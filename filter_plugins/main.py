@@ -1,18 +1,23 @@
 """Extra Ansible filters"""
 
 
-def _rhel_kernel_info(packages, kernel_version):
+def _rhel_kernel_info(packages, kernel_version, current_version):
     """
     Return kernel to install with associated repository.
 
     Args:
         packages (dict): DNF/YUM list output.
         kernel_version (str): Kernel version to install.
+        current_version (str): Current kernel version.
 
     Returns:
        dict: kernel version, repository
     """
     kernels = list()
+
+    # If current version match with required version, use this version
+    if current_version.startswith(kernel_version):
+        kernel_version = current_version
 
     # List all available kernel version and associated repository
     for line in packages['stdout'].splitlines():
@@ -31,46 +36,55 @@ def _rhel_kernel_info(packages, kernel_version):
             ', '.join(kernel['version'] for kernel in kernels)))
 
 
-def rhel_kernel(packages, kernel_version):
+def rhel_kernel(packages, kernel_version, current_version):
     """
     Return matching kernel version to install.
 
     Args:
         packages (dict): DNF/YUM list output.
         kernel_version (str): Kernel version to install.
+        current_version (str): Current kernel version.
 
     Returns:
        str: kernel version.
     """
-    return _rhel_kernel_info(packages, kernel_version)['version']
+    return _rhel_kernel_info(
+        packages, kernel_version, current_version)['version']
 
 
-def rhel_repo(packages, kernel_version):
+def rhel_repo(packages, kernel_version, current_version):
     """
     Return repository where found specified kernel version.
 
     Args:
         packages (dict): DNF/YUM list output.
         kernel_version (str): Kernel version to install.
+        current_version (str): Current kernel version.
 
     Returns:
        str: repository name
     """
-    return _rhel_kernel_info(packages, kernel_version)['repo']
+    return _rhel_kernel_info(
+        packages, kernel_version, current_version)['repo']
 
 
-def deb_kernel(packages, kernel_version):
+def deb_kernel(packages, kernel_version, current_version):
     """
     Return best matching kernel version.
 
     Args:
         packages (dict): apt-cache showpkg output.
         kernel_version (str): Kernel version to install.
+        current_version (str): Current kernel version.
 
     Returns:
        str: kernel version.
     """
     kernels = set()
+
+    # If current version match with required version, use this version
+    if current_version.startswith(kernel_version):
+        kernel_version = current_version
 
     # List all available kernel version and associated repository
     for line in packages['stdout'].splitlines():
@@ -133,13 +147,14 @@ def _deb_kernel_package(kernel, dist, arch, name):
     return '-'.join((name, kernel, suffix))
 
 
-def deb_kernel_pkg(packages, kernel_version, dist, arch, name):
+def deb_kernel_pkg(packages, kernel_version, current_version, dist, arch, name):
     """
     Return kernel package to install.
 
     Args:
         packages (dict): apt-cache showpkg output.
         kernel_version (str): Kernel version to install.
+        current_version (str): Current kernel version.
         dist (str): Distribution.
         arch (str): Architecture.
         name (str): Package name.
@@ -148,10 +163,10 @@ def deb_kernel_pkg(packages, kernel_version, dist, arch, name):
        str: kernel package to install.
     """
     return _deb_kernel_package(
-        deb_kernel(packages, kernel_version), dist, arch, name)
+        deb_kernel(packages, kernel_version, current_version), dist, arch, name)
 
 
-def deb_installed_kernel(installed, packages, kernel_version):
+def deb_installed_kernel(installed, packages, kernel_version, current_version):
     """
     Return old kernel packages to remove.
 
@@ -159,12 +174,13 @@ def deb_installed_kernel(installed, packages, kernel_version):
         installed (dict): dpkg -l output.
         packages (dict): apt-cache showpkg output.
         kernel_version (str): Kernel version to install.
+        current_version (str): Current kernel version.
 
     Returns:
        list of str: Kernel packages to remove.
     """
     # Filter installed package to keep
-    to_keep = deb_kernel(packages, kernel_version)
+    to_keep = deb_kernel(packages, kernel_version, current_version)
 
     # Return installed package to remove
     to_remove = []

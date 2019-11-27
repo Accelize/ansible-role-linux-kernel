@@ -11,8 +11,6 @@ platforms:
     image: centos:7
   - name: centos_8
     image: centos:8
-  - name: fedora_30
-    image: fedora:30
   - name: debian_buster
     image: debian:buster
   - name: ubuntu_bionic
@@ -23,10 +21,15 @@ provisioner:
     name: ansible-lint
   inventory:
     host_vars:
+      # Warning: Always specify a version: bad version detected from container
       centos_7:
         kernel_version: 3.10.0-693
+      centos_8:
+        kernel_version: 4.18.0
       ubuntu_bionic:
         kernel_version: 4.15.0
+      debian_buster:
+        kernel_version: 4.19.0
 verifier:
   name: testinfra
   lint:

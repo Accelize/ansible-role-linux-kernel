@@ -19,13 +19,15 @@
   register: yum_kernel_list
 
 - name: Set target YUM kernel version
-  set_fact: _kernel="{{ yum_kernel_list | rhel_kernel(kernel_version) }}"
+  set_fact: _kernel="{{ yum_kernel_list |
+                     rhel_kernel(kernel_version, ansible_kernel) }}"
   when: yum_kernel_list is not skipped
 
 - name: Ensure kernel packages versions with YUM
   yum:
     name: "{{ item.name }}-{{ _kernel }}"
-    enablerepo: "{{ yum_kernel_list | rhel_repo(kernel_version) }}"
+    enablerepo: "{{ yum_kernel_list |
+                 rhel_repo(kernel_version, ansible_kernel) }}"
     allow_downgrade: true
   when:
     - ansible_os_family == 'RedHat'
@@ -50,13 +52,15 @@
   register: dnf_kernel_list
 
 - name: Set target DNF kernel version
-  set_fact: _kernel="{{ dnf_kernel_list | rhel_kernel(kernel_version) }}"
+  set_fact: _kernel="{{ dnf_kernel_list |
+                     rhel_kernel(kernel_version, ansible_kernel) }}"
   when: dnf_kernel_list is not skipped
 
 - name: Ensure kernel packages versions with DNF
   dnf:
     name: "{{ item.name }}-{{ _kernel }}"
-    enablerepo: "{{ dnf_kernel_list | rhel_repo(kernel_version) }}"
+    enablerepo: "{{ dnf_kernel_list |
+                 rhel_repo(kernel_version, ansible_kernel) }}"
     allow_downgrade: true
   when:
     - ansible_os_family == 'RedHat'
@@ -91,14 +95,15 @@
   register: apt_packages_list
 
 - name: Set target APT kernel version
-  set_fact: _kernel="{{ apt_kernel_list | deb_kernel(kernel_version) }}"
+  set_fact: _kernel="{{ apt_kernel_list |
+                     deb_kernel(kernel_version, ansible_kernel) }}"
   when: apt_kernel_list is not skipped
 
 - name: Ensure kernel packages versions with APT
   apt:
     name: "{{ apt_kernel_list | deb_kernel_pkg(
-           kernel_version, ansible_distribution, ansible_architecture,
-           item.name) }}"
+           kernel_version, ansible_kernel, ansible_distribution,
+           ansible_architecture, item.name) }}"
   when:
     - ansible_os_family == 'Debian'
     - item.when
@@ -111,7 +116,7 @@
 - name: Ensure any other kernel packages are removed with APT
   apt:
     name: "{{ apt_packages_list | deb_installed_kernel(
-           apt_kernel_list, kernel_version) }}"
+           apt_kernel_list, kernel_version, ansible_kernel) }}"
     state: absent
     purge: true
   when: ansible_os_family == 'Debian'
