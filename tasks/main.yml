@@ -51,7 +51,7 @@
       when: install_kernel_headers | bool
 
 - name: Get available kernel versions with DNF
-  command: dnf list --enablerepo=* --showduplicates kernel
+  command: dnf list --enablerepo=* --disablerepo=media-* --showduplicates kernel
   changed_when: false
   args:
     warn: false
