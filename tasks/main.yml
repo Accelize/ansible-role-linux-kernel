@@ -6,6 +6,8 @@
     state: latest  # noqa 403
   retries: 10
   delay: 1
+  register: _centos_release
+  until: _centos_release is successful
   when: ansible_distribution == 'CentOS'
 
 - name: Get available kernel versions with YUM
@@ -13,6 +15,9 @@
   changed_when: false
   args:
     warn: false
+  retries: 10
+  delay: 1
+  until: yum_kernel_list is successful
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution_major_version == "7"
@@ -29,6 +34,10 @@
     enablerepo: "{{ yum_kernel_list |
                  rhel_repo(kernel_version, ansible_kernel) }}"
     allow_downgrade: true
+  retries: 10
+  delay: 1
+  register: _yum_install
+  until: _yum_install is successful
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution_major_version == "7"
@@ -46,6 +55,9 @@
   changed_when: false
   args:
     warn: false
+  retries: 10
+  delay: 1
+  until: dnf_kernel_list is successful
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution_major_version != "7"
@@ -62,6 +74,10 @@
     enablerepo: "{{ dnf_kernel_list |
                  rhel_repo(kernel_version, ansible_kernel) }}"
     allow_downgrade: true
+  retries: 10
+  delay: 1
+  register: _dnf_install
+  until: _dnf_install is successful
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution_major_version != "7"
@@ -78,6 +94,10 @@
   apt:
     update_cache: true
   changed_when: false
+  retries: 10
+  delay: 1
+  register: _apt_update
+  until: _apt_update is successful
   when: ansible_os_family == 'Debian'
 
 - name: Get available kernel versions with APT
@@ -104,6 +124,10 @@
     name: "{{ apt_kernel_list | deb_kernel_pkg(
            kernel_version, ansible_kernel, ansible_distribution,
            ansible_architecture, item.name) }}"
+  retries: 10
+  delay: 1
+  register: _apt_install
+  until: _apt_install is successful
   when:
     - ansible_os_family == 'Debian'
     - item.when
