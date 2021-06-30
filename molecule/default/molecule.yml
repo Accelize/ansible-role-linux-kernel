@@ -2,10 +2,10 @@
 
 dependency:
   name: galaxy
+
 driver:
   name: docker
-lint:
-  name: yamllint
+
 platforms:
   - name: centos_7
     image: centos:7
@@ -15,6 +15,7 @@ platforms:
     image: debian:buster
   - name: ubuntu_bionic
     image: ubuntu:bionic
+
 provisioner:
   name: ansible
   lint:
@@ -30,7 +31,6 @@ provisioner:
         kernel_version: 4.15.0-55
       debian_buster:
         kernel_version: 4.19.0
+
 verifier:
   name: testinfra
-  lint:
-    name: flake8

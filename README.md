@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Accelize/ansible-role-linux-kernel.svg?branch=master)](https://travis-ci.org/Accelize/ansible-role-ansible-drm)
+[![Build Status](https://dev.azure.com/Accelize/DRM/_apis/build/status/Ansible%20-%20Linux%20Kernel?branchName=master)](https://dev.azure.com/Accelize/DRM/_build/latest?definitionId=26&branchName=master)
 
 Linux Kernel Role
 =================
