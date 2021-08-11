@@ -21,6 +21,7 @@ Role Variables
   Default to any version.
 * **reboot_on_kernel_update**: If True, reboot the system if the kernel was updated.
   Default to `true`.
+* **kernel_variant**: If specified on a Debian based distributions, use the required kernel variant (like "", "common", "generic", "aws", "azure", ...) else use the current kernel variant.
 
 Example Playbook
 ----------------

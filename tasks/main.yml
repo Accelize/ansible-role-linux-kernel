@@ -28,11 +28,10 @@
                      rhel_kernel(kernel_version, ansible_kernel) }}"
   when: yum_kernel_list is not skipped
 
-- name: Ensure kernel packages versions with YUM
+- name: "Ensure kernel {{ _kernel }} packages are installed with YUM"
   yum:
     name: "{{ item.name }}-{{ _kernel }}"
-    enablerepo: "{{ yum_kernel_list |
-                 rhel_repo(kernel_version, ansible_kernel) }}"
+    enablerepo: "{{ yum_kernel_list | rhel_repo(kernel_version, ansible_kernel) }}"
     allow_downgrade: true
   retries: 10
   delay: 1
@@ -68,11 +67,10 @@
                      rhel_kernel(kernel_version, ansible_kernel) }}"
   when: dnf_kernel_list is not skipped
 
-- name: Ensure kernel packages versions with DNF
+- name: "Ensure kernel {{ _kernel }} packages are installed with DNF"
   dnf:
     name: "{{ item.name }}-{{ _kernel }}"
-    enablerepo: "{{ dnf_kernel_list |
-                 rhel_repo(kernel_version, ansible_kernel) }}"
+    enablerepo: "{{ dnf_kernel_list | rhel_repo(kernel_version, ansible_kernel) }}"
     allow_downgrade: true
   retries: 10
   delay: 1
@@ -103,27 +101,24 @@
 - name: Get available kernel versions with APT
   command: apt-cache showpkg linux-headers-*
   changed_when: false
-  when:
-    - ansible_os_family == 'Debian'
   register: apt_kernel_list
+  when: ansible_os_family == 'Debian'
 
 - name: Get installed packages with APT
   command: dpkg -l
   changed_when: false
-  when:
-    - ansible_os_family == 'Debian'
   register: apt_packages_list
+  when: ansible_os_family == 'Debian'
 
 - name: Set target APT kernel version
   set_fact: _kernel="{{ apt_kernel_list |
-                     deb_kernel(kernel_version, ansible_kernel) }}"
+                     deb_kernel(kernel_version, ansible_kernel,
+                     kernel_variant | default(omit)) }}"
   when: apt_kernel_list is not skipped
 
-- name: Ensure kernel packages versions with APT
+- name: "Ensure kernel {{ _kernel }} packages are installed with APT"
   apt:
-    name: "{{ apt_kernel_list | deb_kernel_pkg(
-           kernel_version, ansible_kernel, ansible_distribution,
-           ansible_architecture, item.name) }}"
+    name: "{{ item.name | deb_kernel_package(_kernel, ansible_architecture) }}"
   retries: 10
   delay: 1
   register: _apt_install
@@ -139,11 +134,12 @@
 
 - name: Ensure any other kernel packages are removed with APT
   apt:
-    name: "{{ apt_packages_list | deb_installed_kernel(
-           apt_kernel_list, kernel_version, ansible_kernel) }}"
+    name: "{{ apt_packages_list |
+           deb_installed_kernel(_kernel, ansible_architecture) }}"
     state: absent
     purge: true
   when: ansible_os_family == 'Debian'
+  tags: molecule-idempotence-notest
 
 - name: Get /var/run/reboot-required stat
   # Note: Should exist on Debian based OS if reboot is required
@@ -151,21 +147,18 @@
     path: /var/run/reboot-required
   register: reboot_flag
 
-- name: Notify about Kernel update and reboot requierement
-  debug:
-    msg: 'REBOOT REQUIRED, kernel version changed
-          from {{ ansible_kernel }} to {{ _kernel }}.'
-  when:
-    - (not (ansible_kernel | kernel_match(_kernel)) or reboot_flag.stat.exists)
-
-- name: Ensure the new kernel is enabled by rebooting
+- name: "Reboot if kernel changed (from {{ ansible_kernel }} to {{ _kernel }})."
   reboot:
+  register: linux_kernel_rebooted
   when:
     - reboot_on_kernel_update | bool
     - (not (ansible_kernel | kernel_match(_kernel)) or reboot_flag.stat.exists)
 
 - name: Update facts
   setup:
-  when:
-    - reboot_on_kernel_update | bool
-    - (not (ansible_kernel | kernel_match(_kernel)) or reboot_flag.stat.exists)
+  when: linux_kernel_rebooted.changed  # noqa no-handler
+
+- name: Show kernel version after reboot
+  debug:
+    msg: 'The current kernel version is now: {{ ansible_kernel }}.'
+  when: linux_kernel_rebooted.changed  # noqa no-handler

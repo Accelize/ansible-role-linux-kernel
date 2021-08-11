@@ -1,6 +1,7 @@
 ---
 - name: Converge
   hosts: all
+  strategy: free
   roles:
     - role: ansible-role-linux-kernel
   vars:
