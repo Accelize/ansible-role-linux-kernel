@@ -1,6 +1,7 @@
 ---
 galaxy_info:
   role_name: linux_kernel
+  namespace: accelize
   author: Accelize
   description: 'This Ansible role install and enable a specific Kernel version
                 from OS repositories.'
