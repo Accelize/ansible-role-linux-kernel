@@ -10,7 +10,7 @@ platforms:
   - name: centos_7
     image: centos:7
   - name: centos_8
-    image: centos:8
+    image: quay.io/centos/centos:stream8
   - name: debian_buster
     image: debian:buster
   - name: ubuntu_bionic
