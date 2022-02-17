@@ -130,7 +130,9 @@ def deb_installed_kernel(installed, kernel_version, arch):
        list of str: Kernel packages to remove.
     """
     packages = ("linux-image-", "linux-headers-")
-    to_keep = tuple(deb_kernel_package(name, kernel_version, arch) for name in packages)
+    to_keep = tuple(
+        deb_kernel_package(name.rstrip("-"), kernel_version, arch) for name in packages
+    )
 
     to_remove = []
     for line in installed["stdout"].splitlines():
