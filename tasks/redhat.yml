@@ -37,6 +37,6 @@
     - name: kernel
       when: true
     - name: kernel-devel
-      when: install_kernel_headers | bool
+      when: "{{ install_kernel_headers | bool }}"
     - name: kernel-headers
-      when: install_kernel_headers | bool
+      when: "{{ install_kernel_headers | bool }}"

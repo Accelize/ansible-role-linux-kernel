@@ -36,7 +36,7 @@
     - name: linux-image
       when: true
     - name: linux-headers
-      when: install_kernel_headers | bool
+      when: "{{ install_kernel_headers | bool }}"
 
 - name: Ensure any other kernel packages are removed
   apt:
